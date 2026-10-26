@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "recipe": {
+    "name": "ai-command-center docs",
+    "kind": "custom",
+    "bootstrap": [],
+    "build": [],
+    "test": [
+      "python3 scripts/render_badge.py"
+    ],
+    "start": null,
+    "port": null,
+    "readinessPath": "/",
+    "evidence": [
+      "Docs repo: badge renderer executes against committed live-stats snapshot"
+    ]
+  }
+}

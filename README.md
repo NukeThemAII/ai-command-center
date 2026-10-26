@@ -72,9 +72,12 @@ flowchart LR
 ### 3 · Deterministic risk & policy gate (TypeScript)
 - Pure, explainable functions: documented additive risk model → 0–100 score,
   per-gate pass/fail, machine-readable reason codes.
-- Optional TypeSafe "System One" overlay: typed questions (score / choice /
+- Optional live TypeSafe Jev (System One) overlay: typed questions (score / choice /
   yes-no) with strict response validation (probability sums, top-choice margin
   checks, no confidence field on binary answers).
+- **Decision (2026-10-27):** in the live webhook path the deterministic gate runs
+  alone — predictable latency and cost; the model overlay is **opt-in per call**
+  and only annotates the decision.
 - **Fail-open by design**: the deterministic gate is the authority; the model
   layer annotates and can never block or fabricate.
 
