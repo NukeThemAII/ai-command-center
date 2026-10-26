@@ -1,0 +1,28 @@
+name: live-stats
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: fetch live stats from the VPS (public, sanitized endpoint)
+        run: curl -fsS --max-time 30 https://ai.earngrid.site/public/stats -o docs/live-stats.json
+
+      - name: render badges
+        run: python3 scripts/render_badge.py
+
+      - name: commit if changed
+        run: |
+          git config user.name "live-stats-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/live-stats.json docs/badge-*.json
+          git diff --cached --quiet || git commit -m "live stats refresh [skip ci]"
+          git push

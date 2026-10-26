@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Command Center — Live</title>
+<style>
+  :root {
+    --bg: #0b0e14; --panel: #121722; --panel2: #1a2130; --border: #232c3d;
+    --text: #d7e0ea; --muted: #8b98ab; --accent: #4da3ff; --green: #37d67a;
+    --yellow: #ffd166; --red: #ff6b6b; --blue: #6ea8fe; --purple: #b28dff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 22px 60px; }
+  header { padding: 40px 0 16px; border-bottom: 1px solid var(--border); }
+  .eyebrow { color: var(--accent); letter-spacing: 2.5px; font-size: 11px; text-transform: uppercase; }
+  h1 { font-size: 30px; margin: 8px 0 6px; }
+  .sub { color: var(--muted); }
+  .badges img { margin: 14px 6px 0 0; }
+  a.cta { display: inline-block; margin: 16px 10px 0 0; background: var(--accent); color: #06121f;
+          padding: 10px 18px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+  a.cta.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  .live { display: flex; align-items: center; gap: 8px; color: var(--green); font-size: 12px; margin-top: 14px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: blink 1.8s infinite; }
+  @keyframes blink { 50% { opacity: .35; } }
+  h2 { font-size: 19px; margin: 38px 0 12px; border-top: 1px solid var(--border); padding-top: 28px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 16px 0; }
+  .kpi { background: var(--panel); border: 1px solid var(--border); border-radius: 11px; padding: 15px; }
+  .kpi .l { color: var(--muted); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
+  .kpi .v { font-size: 24px; font-weight: 800; margin-top: 5px; }
+  .kpi .f { color: var(--muted); font-size: 11px; margin-top: 3px; }
+  .green { color: var(--green); } .blue { color: var(--blue); } .yellow { color: var(--yellow); }
+  .purple { color: var(--purple); } .red { color: var(--red); }
+  .svc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+  .svc { background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .svc .n { font-weight: 700; font-size: 13px; }
+  .svc .m { color: var(--muted); font-size: 11px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 11px; }
+  .chip i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .chip .up i { background: var(--green); box-shadow: 0 0 7px var(--green); }
+  .chip .down i { background: var(--red); box-shadow: 0 0 7px var(--red); }
+  .pipeline { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin: 16px 0; }
+  .pnode { background: var(--panel2); border: 1.5px solid var(--border); border-radius: 10px;
+           padding: 10px 13px; text-align: center; min-width: 100px; }
+  .pnode .t { font-size: 12px; font-weight: 700; }
+  .pnode .s { font-size: 10px; color: var(--muted); }
+  .pnode.mem { border-style: dashed; }
+  .arrow { color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; }
+  th, td { text-align: left; padding: 9px 11px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .6px; }
+  .muted { color: var(--muted); }
+  footer { margin-top: 46px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">GitHub Pages · Live VPS Telemetry</div>
+  <h1>AI Command Center</h1>
+  <div class="sub">Polyglot AI Stack — RAG · stateful LLM agents · TypeScript deterministic risk gate.
+    This page reads <b>live data</b> from the running system.</div>
+  <div class="badges">
+    <img alt="stack" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/NukeThemAII/ai-command-center/main/docs/badge-stack.json">
+    <img alt="leads" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/NukeThemAII/ai-command-center/main/docs/badge-leads.json">
+    <img alt="latency" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/NukeThemAII/ai-command-center/main/docs/badge-latency.json">
+    <img alt="vectors" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/NukeThemAII/ai-command-center/main/docs/badge-vectors.json">
+  </div>
+  <div>
+    <a class="cta" href="https://ai.earngrid.site/">Live Case Study (VPS)</a>
+    <a class="cta ghost" href="https://ai.earngrid.site/ui">Interactive Demo</a>
+    <a class="cta ghost" href="https://github.com/NukeThemAII/ai-command-center">Case Study Repo</a>
+  </div>
+  <div class="live"><span class="dot"></span><span id="freshness">connecting to live endpoint…</span></div>
+</header>
+
+<h2>System KPIs</h2>
+<div class="grid" id="kpis"><div class="kpi"><div class="l">loading</div><div class="v">…</div></div></div>
+
+<h2>Service Health</h2>
+<div class="svc-grid" id="services"><div class="svc"><div class="n">loading…</div></div></div>
+
+<h2>Architecture</h2>
+<div class="pipeline">
+  <div class="pnode"><div class="t">Webhook</div><div class="s">HTTPS</div></div>
+  <div class="arrow">→</div>
+  <div class="pnode"><div class="t">n8n</div><div class="s">orchestration</div></div>
+  <div class="arrow">→</div>
+  <div class="pnode"><div class="t">FastAPI + LangGraph</div><div class="s">Pydantic AI</div></div>
+  <div class="arrow">⇄</div>
+  <div class="pnode mem"><div class="t">Redis</div><div class="s">memory · AOF</div></div>
+  <div class="arrow">→</div>
+  <div class="pnode"><div class="t">TS Risk Gate</div><div class="s">Jev 1.13</div></div>
+  <div class="arrow">→</div>
+  <div class="pnode"><div class="t">PostgreSQL</div><div class="s">pgvector</div></div>
+</div>
+
+<h2>Measured Benchmarks</h2>
+<table>
+  <thead><tr><th>Metric</th><th>Value</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Decision-model latency (TypeSafe Jev 1.13)</td><td class="mono">548 ms</td><td>3-question fan-out, measured live</td></tr>
+    <tr><td>Cost per model decision</td><td class="mono">$0.0000213</td><td>provider-billed usage.cost</td></tr>
+    <tr><td>Deterministic risk gate</td><td class="mono">&lt; 25 ms</td><td>in-network, zero external calls</td></tr>
+    <tr><td>Embeddings</td><td class="mono">1536-dim</td><td>text-embedding-3-small · HNSW cosine</td></tr>
+    <tr><td>Topology</td><td class="mono">6 containers</td><td>isolated bridge network · memory caps · log rotation</td></tr>
+  </tbody>
+</table>
+
+<footer>
+  Live data: <code>https://ai.earngrid.site/public/stats</code> (real-time) with a
+  committed snapshot refresh every 30 minutes as fallback ·
+  <a href="https://github.com/NukeThemAII/ai-command-center" style="color:var(--accent)">NukeThemAII/ai-command-center</a>
+</footer>
+</div>
+
+<script>
+const LIVE_URL = "https://ai.earngrid.site/public/stats";
+const FALLBACK = "./live-stats.json";
+
+function render(s, source) {
+  document.getElementById("freshness").textContent =
+    `live data · source: ${source} · updated ${new Date((s.generated_at || Date.now()/1000) * 1000).toUTCString()}`;
+  const c = s.counters || {};
+  document.getElementById("kpis").innerHTML = `
+    <div class="kpi"><div class="l">Vectors Indexed</div><div class="v blue">${c.total_vectors ?? "—"}</div>
+      <div class="f">1536-dim · HNSW cosine</div></div>
+    <div class="kpi"><div class="l">Leads Scored</div><div class="v green">${c.leads_scored ?? "—"}</div>
+      <div class="f">full audit trail</div></div>
+    <div class="kpi"><div class="l">Avg Gate Latency</div><div class="v purple">${c.avg_gate_latency_ms ?? "—"}<span class="f"> ms</span></div>
+      <div class="f">deterministic engine</div></div>
+    <div class="kpi"><div class="l">Cost / Decision</div><div class="v yellow">$${(c.cost_per_decision_usd ?? 0).toFixed(7)}</div>
+      <div class="f">measured</div></div>`;
+  document.getElementById("services").innerHTML = (s.services || []).map(x => `
+    <div class="svc"><div class="n">${x.name}</div>
+      <div class="chip ${x.status === "up" ? "up" : "down"}"><i></i>${x.status} · ${x.latency_ms} ms</div></div>`).join("");
+}
+
+async function load() {
+  try {
+    const r = await fetch(LIVE_URL, { cache: "no-store" });
+    render(await r.json(), "VPS real-time");
+  } catch (e) {
+    try {
+      const r = await fetch(FALLBACK, { cache: "no-store" });
+      render(await r.json(), "repo snapshot (30-min refresh)");
+    } catch (e2) {
+      document.getElementById("freshness").textContent = "telemetry unavailable";
+    }
+  }
+}
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>
