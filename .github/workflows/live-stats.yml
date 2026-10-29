@@ -1,7 +1,8 @@
 name: live-stats
+# DISABLED as a schedule: GitHub Free, no Actions minutes. The snapshot + badges are pushed
+# every 30 min by a systemd timer on the VPS (live-stats-push, repo-scoped deploy key).
+# Kept for a manual run only.
 on:
-  schedule:
-    - cron: "*/30 * * * *"
   workflow_dispatch: {}
 
 permissions:
