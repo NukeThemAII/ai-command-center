@@ -7,17 +7,17 @@
 > case study and the live telemetry dashboard.
 
 <p align="center">
-  <b>Live:</b> <a href="https://nukethemaii.github.io/ai-command-center/">telemetry dashboard</a> ·
+  <b>Live:</b> <a href="https://adaptivesystemsdev.github.io/ai-command-center/">telemetry dashboard</a> ·
   <a href="https://status.adaptivesystems.dev/status/stack">status page</a> ·
   <a href="https://adaptivesystems.dev/">adaptivesystems.dev</a><br>
   <i>Single VPS, Docker Compose, nginx + Let's Encrypt, Uptime Kuma monitoring.</i>
 </p>
 
 <p align="center">
-  <img alt="stack" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/NukeThemAII/ai-command-center/main/docs/badge-stack.json">
-  <img alt="leads scored" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/NukeThemAII/ai-command-center/main/docs/badge-leads.json">
-  <img alt="gate latency" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/NukeThemAII/ai-command-center/main/docs/badge-latency.json">
-  <img alt="vectors" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/NukeThemAII/ai-command-center/main/docs/badge-vectors.json">
+  <img alt="stack" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/adaptivesystemsdev/ai-command-center/main/docs/badge-stack.json">
+  <img alt="leads scored" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/adaptivesystemsdev/ai-command-center/main/docs/badge-leads.json">
+  <img alt="gate latency" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/adaptivesystemsdev/ai-command-center/main/docs/badge-latency.json">
+  <img alt="vectors" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/adaptivesystemsdev/ai-command-center/main/docs/badge-vectors.json">
 </p>
 
 ---

@@ -37,5 +37,5 @@ ingestion, signed webhooks. A real voice call test books and cancels an appointm
 - Adding a client is configuration, not development.
 - Runs on the client's own server or hosted; the client owns its data.
 
-**Live:** telemetry dashboard https://nukethemaii.github.io/ai-command-center/ · status page
+**Live:** telemetry dashboard https://adaptivesystemsdev.github.io/ai-command-center/ · status page
 https://status.adaptivesystems.dev/status/stack · walkthrough of the private app on request.
