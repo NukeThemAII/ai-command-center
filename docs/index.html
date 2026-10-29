@@ -161,7 +161,9 @@ function render(s, live) {
     <div class="kpi"><div class="l">Vectors indexed</div><div class="v yellow">${esc(c.total_vectors)}</div>
       <div class="f">1536-dim · HNSW cosine</div></div>`;
   if (c.avg_gate_latency_ms != null) document.getElementById("gate").textContent = `${c.avg_gate_latency_ms} ms`;
-  const routes = Object.entries(c.route_distribution || {}).sort((a, b) => b[1] - a[1]);
+  // counts are forced to non-negative integers: nothing from the payload reaches the HTML unescaped
+  const routes = Object.entries(c.route_distribution || {})
+    .map(([k, v]) => [String(k), Math.max(0, Math.trunc(Number(v)) || 0)]).sort((a, b) => b[1] - a[1]);
   const total = routes.reduce((n, [, v]) => n + v, 0);
   document.getElementById("routes").innerHTML = total ? `
     <div class="l">${total} routed leads</div>
