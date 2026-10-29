@@ -22,7 +22,7 @@ badges = {
     "badge-leads.json": {
         "schemaVersion": 1,
         "label": "leads scored",
-        "message": str(counters.get("total_vectors", 0)) if False else str(counters.get("leads_scored", 0)),
+        "message": str(counters.get("leads_scored", 0)),
         "color": "blue",
     },
     "badge-latency.json": {

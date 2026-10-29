@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI Command Center — Live</title>
+<title>Adaptive Systems — Live Telemetry</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%234da3ff%22/%3E%3C/svg%3E">
+<meta name="description" content="Live telemetry of the Adaptive Systems AI stack: support bot (RAG + hard facts), booking, voice receptionist and lead scoring with a deterministic gate.">
 <style>
   :root {
     --bg: #0b0e14; --panel: #121722; --panel2: #1a2130; --border: #232c3d;
@@ -13,17 +15,18 @@
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text);
          font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 22px 60px; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px 60px; }
   header { padding: 40px 0 16px; border-bottom: 1px solid var(--border); }
   .eyebrow { color: var(--accent); letter-spacing: 2.5px; font-size: 11px; text-transform: uppercase; }
   h1 { font-size: 30px; margin: 8px 0 6px; }
-  .sub { color: var(--muted); }
+  .sub { color: var(--muted); max-width: 760px; }
   .badges img { margin: 14px 6px 0 0; }
   a.cta { display: inline-block; margin: 16px 10px 0 0; background: var(--accent); color: #06121f;
           padding: 10px 18px; border-radius: 8px; text-decoration: none; font-weight: 700; }
   a.cta.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
   .live { display: flex; align-items: center; gap: 8px; color: var(--green); font-size: 12px; margin-top: 14px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: blink 1.8s infinite; }
+  .live.stale { color: var(--yellow); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: blink 1.8s infinite; }
   @keyframes blink { 50% { opacity: .35; } }
   h2 { font-size: 19px; margin: 38px 0 12px; border-top: 1px solid var(--border); padding-top: 28px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 16px 0; }
@@ -32,37 +35,44 @@
   .kpi .v { font-size: 24px; font-weight: 800; margin-top: 5px; }
   .kpi .f { color: var(--muted); font-size: 11px; margin-top: 3px; }
   .green { color: var(--green); } .blue { color: var(--blue); } .yellow { color: var(--yellow); }
-  .purple { color: var(--purple); } .red { color: var(--red); }
+  .purple { color: var(--purple); }
   .svc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
   .svc { background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
   .svc .n { font-weight: 700; font-size: 13px; }
-  .svc .m { color: var(--muted); font-size: 11px; }
   .chip { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 11px; }
   .chip i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-  .chip .up i { background: var(--green); box-shadow: 0 0 7px var(--green); }
-  .chip .down i { background: var(--red); box-shadow: 0 0 7px var(--red); }
-  .pipeline { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin: 16px 0; }
+  .chip.up i { background: var(--green); box-shadow: 0 0 7px var(--green); }
+  .chip.down i { background: var(--red); box-shadow: 0 0 7px var(--red); }
+  .bar { display: flex; height: 10px; border-radius: 6px; overflow: hidden; background: var(--panel2); margin-top: 10px; }
+  .bar span { display: block; height: 100%; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 11px; color: var(--muted); }
+  .legend b { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  .pipeline { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin: 12px 0; }
   .pnode { background: var(--panel2); border: 1.5px solid var(--border); border-radius: 10px;
-           padding: 10px 13px; text-align: center; min-width: 100px; }
+           padding: 9px 12px; text-align: center; min-width: 96px; }
   .pnode .t { font-size: 12px; font-weight: 700; }
   .pnode .s { font-size: 10px; color: var(--muted); }
   .pnode.mem { border-style: dashed; }
   .arrow { color: var(--muted); }
+  .lane { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-top: 16px; }
+  .table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; margin: 14px 0; }
-  th, td { text-align: left; padding: 9px 11px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  th, td { text-align: left; padding: 9px 11px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
   th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .6px; }
-  .muted { color: var(--muted); }
+  code { color: var(--accent); }
   footer { margin-top: 46px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+  footer a { color: var(--accent); }
 </style>
 </head>
 <body>
 <div class="wrap">
 
 <header>
-  <div class="eyebrow">GitHub Pages · Live VPS Telemetry</div>
-  <h1>AI Command Center</h1>
-  <div class="sub">Polyglot AI Stack — RAG · stateful LLM agents · TypeScript deterministic risk gate.
-    This page reads <b>live data</b> from the running system.</div>
+  <div class="eyebrow">Adaptive Systems · Live VPS Telemetry</div>
+  <h1>Deterministic AI Infrastructure</h1>
+  <div class="sub">One self-hosted engine, configured per business: a support bot grounded in the client's own
+    documents and hard facts, appointment booking, an AI voice receptionist, and lead scoring with a deterministic
+    policy gate. This page reads <b>live, sanitized data</b> from the running system.</div>
   <div class="badges">
     <img alt="stack" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/NukeThemAII/ai-command-center/main/docs/badge-stack.json">
     <img alt="leads" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/NukeThemAII/ai-command-center/main/docs/badge-leads.json">
@@ -70,83 +80,108 @@
     <img alt="vectors" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/NukeThemAII/ai-command-center/main/docs/badge-vectors.json">
   </div>
   <div>
-    <a class="cta" href="https://ai.earngrid.site/">Live Case Study (VPS)</a>
-    <a class="cta ghost" href="https://ai.earngrid.site/ui">Interactive Demo</a>
-    <a class="cta ghost" href="https://github.com/NukeThemAII/ai-command-center">Case Study Repo</a>
+    <a class="cta" href="https://adaptivesystems.dev/">adaptivesystems.dev</a>
+    <a class="cta ghost" href="https://status.adaptivesystems.dev/status/stack">Status page</a>
+    <a class="cta ghost" href="https://github.com/NukeThemAII/ai-command-center">Case study</a>
   </div>
-  <div class="live"><span class="dot"></span><span id="freshness">connecting to live endpoint…</span></div>
+  <div class="live" id="live"><span class="dot"></span><span id="freshness">connecting to the live endpoint…</span></div>
 </header>
 
 <h2>System KPIs</h2>
 <div class="grid" id="kpis"><div class="kpi"><div class="l">loading</div><div class="v">…</div></div></div>
 
-<h2>Service Health</h2>
+<h2>Lead routing (all time)</h2>
+<div id="routes" class="kpi"><div class="l">loading…</div></div>
+
+<h2>Service health</h2>
 <div class="svc-grid" id="services"><div class="svc"><div class="n">loading…</div></div></div>
 
 <h2>Architecture</h2>
+<div class="lane">Lead pipeline</div>
 <div class="pipeline">
-  <div class="pnode"><div class="t">Webhook</div><div class="s">HTTPS</div></div>
-  <div class="arrow">→</div>
-  <div class="pnode"><div class="t">n8n</div><div class="s">orchestration</div></div>
-  <div class="arrow">→</div>
-  <div class="pnode"><div class="t">FastAPI + LangGraph</div><div class="s">Pydantic AI</div></div>
-  <div class="arrow">⇄</div>
-  <div class="pnode mem"><div class="t">Redis</div><div class="s">memory · AOF</div></div>
-  <div class="arrow">→</div>
-  <div class="pnode"><div class="t">TS Risk Gate</div><div class="s">Jev 1.13</div></div>
-  <div class="arrow">→</div>
-  <div class="pnode"><div class="t">PostgreSQL</div><div class="s">pgvector</div></div>
+  <div class="pnode"><div class="t">Webhook / form</div><div class="s">HTTPS · secret</div></div><div class="arrow">→</div>
+  <div class="pnode"><div class="t">n8n</div><div class="s">orchestration</div></div><div class="arrow">→</div>
+  <div class="pnode"><div class="t">LLM sub-scores</div><div class="s">evidence quotes</div></div><div class="arrow">→</div>
+  <div class="pnode"><div class="t">TS policy gate</div><div class="s">deterministic · reason codes</div></div><div class="arrow">→</div>
+  <div class="pnode"><div class="t">Route + reply</div><div class="s">full · starter · needs_info · reject · review</div></div><div class="arrow">→</div>
+  <div class="pnode"><div class="t">Audit + alert</div><div class="s">Postgres · Telegram</div></div>
+</div>
+<div class="lane">Support &amp; voice</div>
+<div class="pipeline">
+  <div class="pnode"><div class="t">Caller / visitor</div><div class="s">voice or chat</div></div><div class="arrow">→</div>
+  <div class="pnode"><div class="t">ElevenLabs agent</div><div class="s">STT · LLM · TTS</div></div><div class="arrow">→</div>
+  <div class="pnode"><div class="t">Webhook tools</div><div class="s">per-client secret</div></div><div class="arrow">→</div>
+  <div class="pnode"><div class="t">Facts · RAG · booking</div><div class="s">FastAPI engine</div></div><div class="arrow">⇄</div>
+  <div class="pnode mem"><div class="t">pgvector · Redis</div><div class="s">per-client data</div></div>
 </div>
 
-<h2>Measured Benchmarks</h2>
+<h2>Measured on the live system</h2>
+<div class="table-wrap">
 <table>
-  <thead><tr><th>Metric</th><th>Value</th><th>Notes</th></tr></thead>
+  <thead><tr><th>What</th><th>Value</th><th>Notes</th></tr></thead>
   <tbody>
-    <tr><td>Decision-model latency (TypeSafe Jev 1.13)</td><td class="mono">548 ms</td><td>3-question fan-out, measured live</td></tr>
-    <tr><td>Cost per model decision</td><td class="mono">$0.0000213</td><td>provider-billed usage.cost</td></tr>
-    <tr><td>Deterministic risk gate</td><td class="mono">&lt; 25 ms</td><td>in-network, zero external calls</td></tr>
-    <tr><td>Embeddings</td><td class="mono">1536-dim</td><td>text-embedding-3-small · HNSW cosine</td></tr>
-    <tr><td>Topology</td><td class="mono">6 containers</td><td>isolated bridge network · memory caps · log rotation</td></tr>
+    <tr><td>Lead qualification (LLM, end to end)</td><td>p50 2.8 s · p95 4.2 s</td><td>Gemini 3.8 Flash primary, 8 s deadline per model, fallback chain, degraded mode routes to review (never a 5xx)</td></tr>
+    <tr><td>Deterministic policy gate</td><td id="gate">≈ 10 ms</td><td>in-network, no model call; average from live traffic</td></tr>
+    <tr><td>Voice tools (facts, availability, book, cancel)</td><td>p95 ≈ 25 ms</td><td>as ElevenLabs calls them, over the public API host</td></tr>
+    <tr><td>Embeddings</td><td>1536-dim</td><td>text-embedding-3-small · pgvector HNSW cosine</td></tr>
+    <tr><td>Clients</td><td>3 from config</td><td>our own intake + two fictional demo businesses (clinic, plumber), added with config files only — no code changes</td></tr>
   </tbody>
 </table>
+</div>
 
 <footer>
-  Live data: <code>https://ai.earngrid.site/public/stats</code> (real-time) with a
-  committed snapshot refresh every 30 minutes as fallback ·
-  <a href="https://github.com/NukeThemAII/ai-command-center" style="color:var(--accent)">NukeThemAII/ai-command-center</a>
+  Live data: <code>https://api.adaptivesystems.dev/public/stats</code> (sanitized, cached; test traffic excluded)
+  · fallback: the snapshot committed in this repository ·
+  <a href="https://github.com/NukeThemAII/ai-command-center">NukeThemAII/ai-command-center</a>
 </footer>
 </div>
 
 <script>
-const LIVE_URL = "https://ai.earngrid.site/public/stats";
+const LIVE_URL = "https://api.adaptivesystems.dev/public/stats";
 const FALLBACK = "./live-stats.json";
+const ROUTE_COLOURS = { full: "var(--green)", starter: "var(--blue)", needs_info: "var(--yellow)",
+                        review: "var(--purple)", reject: "var(--red)" };
+const esc = (v) => String(v ?? "—").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
 
-function render(s, source) {
+function render(s, live) {
+  const box = document.getElementById("live");
+  box.classList.toggle("stale", !live);
   document.getElementById("freshness").textContent =
-    `live data · source: ${source} · updated ${new Date((s.generated_at || Date.now()/1000) * 1000).toUTCString()}`;
+    `${live ? "live" : "snapshot"} · updated ${new Date((s.generated_at || Date.now() / 1000) * 1000).toUTCString()}`;
   const c = s.counters || {};
+  const services = s.services || [];
+  const up = services.filter((x) => x.status === "up").length;
   document.getElementById("kpis").innerHTML = `
-    <div class="kpi"><div class="l">Vectors Indexed</div><div class="v blue">${c.total_vectors ?? "—"}</div>
-      <div class="f">1536-dim · HNSW cosine</div></div>
-    <div class="kpi"><div class="l">Leads Scored</div><div class="v green">${c.leads_scored ?? "—"}</div>
-      <div class="f">full audit trail</div></div>
-    <div class="kpi"><div class="l">Avg Gate Latency</div><div class="v purple">${c.avg_gate_latency_ms ?? "—"}<span class="f"> ms</span></div>
+    <div class="kpi"><div class="l">Services up</div><div class="v green">${up}/${services.length}</div>
+      <div class="f">core containers, checked live</div></div>
+    <div class="kpi"><div class="l">Leads scored</div><div class="v blue">${esc(c.leads_scored)}</div>
+      <div class="f">real traffic · every decision audit-logged</div></div>
+    <div class="kpi"><div class="l">Avg gate latency</div><div class="v purple">${esc(c.avg_gate_latency_ms)}<span class="f"> ms</span></div>
       <div class="f">deterministic engine</div></div>
-    <div class="kpi"><div class="l">Cost / Decision</div><div class="v yellow">$${(c.cost_per_decision_usd ?? 0).toFixed(7)}</div>
-      <div class="f">measured</div></div>`;
-  document.getElementById("services").innerHTML = (s.services || []).map(x => `
-    <div class="svc"><div class="n">${x.name}</div>
-      <div class="chip ${x.status === "up" ? "up" : "down"}"><i></i>${x.status} · ${x.latency_ms} ms</div></div>`).join("");
+    <div class="kpi"><div class="l">Vectors indexed</div><div class="v yellow">${esc(c.total_vectors)}</div>
+      <div class="f">1536-dim · HNSW cosine</div></div>`;
+  if (c.avg_gate_latency_ms != null) document.getElementById("gate").textContent = `${c.avg_gate_latency_ms} ms`;
+  const routes = Object.entries(c.route_distribution || {}).sort((a, b) => b[1] - a[1]);
+  const total = routes.reduce((n, [, v]) => n + v, 0);
+  document.getElementById("routes").innerHTML = total ? `
+    <div class="l">${total} routed leads</div>
+    <div class="bar">${routes.map(([k, v]) => `<span style="width:${(100 * v / total).toFixed(2)}%;background:${ROUTE_COLOURS[k] || "var(--muted)"}"></span>`).join("")}</div>
+    <div class="legend">${routes.map(([k, v]) => `<span><b style="background:${ROUTE_COLOURS[k] || "var(--muted)"}"></b>${esc(k)} ${v}</span>`).join("")}</div>`
+    : `<div class="l">no routed leads yet</div>`;
+  document.getElementById("services").innerHTML = services.map((x) => `
+    <div class="svc"><div class="n">${esc(x.name)}</div>
+      <div class="chip ${x.status === "up" ? "up" : "down"}"><i></i>${esc(x.status)} · ${esc(x.latency_ms)} ms</div></div>`).join("");
 }
 
 async function load() {
   try {
     const r = await fetch(LIVE_URL, { cache: "no-store" });
-    render(await r.json(), "VPS real-time");
+    if (!r.ok) throw new Error(r.status);
+    render(await r.json(), true);
   } catch (e) {
     try {
       const r = await fetch(FALLBACK, { cache: "no-store" });
-      render(await r.json(), "repo snapshot (30-min refresh)");
+      render(await r.json(), false);
     } catch (e2) {
       document.getElementById("freshness").textContent = "telemetry unavailable";
     }

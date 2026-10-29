@@ -1,47 +1,41 @@
-# Upwork Portfolio Item — Polyglot AI Stack
+# Upwork portfolio item — Adaptive Systems AI stack
 
-**Title:** Polyglot AI Automation Stack — RAG, Stateful LLM Agents & Deterministic Risk Gating
+**Title:** AI Receptionist, Support Bot & Lead Scoring — one config-driven, self-hosted engine
 
-**Role:** Sole engineer — architecture, backend (Python + TypeScript), data layer, orchestration, infra, observability
+**Role:** Sole engineer — architecture, backend (Python + TypeScript), voice agent, data layer,
+orchestration, infrastructure, security, testing
 
-**Skills:** Python, TypeScript, FastAPI, LangGraph, Pydantic AI, PostgreSQL, pgvector, Redis, Docker, n8n, RAG, LLM integration, API design, monitoring
+**Skills:** Python, TypeScript, FastAPI, LangGraph, Pydantic AI, RAG, pgvector, PostgreSQL, Redis,
+n8n, ElevenLabs, Next.js, Docker, nginx, MCP
 
 ---
 
 ## Summary (~150 words)
 
-Designed and shipped a production-grade AI automation platform in a polyglot
-architecture: a Python FastAPI + LangGraph service running stateful LLM agents
-with persistent conversation memory, a pgvector RAG pipeline that turns any
-website into a cited, grounded knowledge base, and a TypeScript decision engine
-that enforces deterministic risk and policy gates — with an optional TypeSafe
-"System One" probabilistic decision-model overlay under strict validation.
-Workflow automation (n8n) fans out inbound webhooks through the full chain into
-an immutable audit store. Everything runs as six memory-capped Docker containers
-on an isolated bridge network, with live telemetry dashboards, rate-limited and
-token-guarded public endpoints, and provider-resilient LLM routing. Built live
-end-to-end in one session, verified with real traffic — measured, not mocked.
+A self-hosted AI engine that businesses configure instead of commissioning. Each client is a folder
+of config files: hard facts (hours, prices, services), documents, scoring rules and reply templates.
+From that, the engine answers customer questions with checkable citations and never invents a price
+or opening time, books and cancels real appointments, runs an ElevenLabs voice receptionist built
+automatically from the same config, and scores inbound leads with an LLM whose output is checked by a
+deterministic TypeScript policy gate. Every decision is audit-logged per client. Three clients run
+today from config alone (our intake plus two fictional demo businesses). Security is tested, not
+assumed: prompt-injection detectors, tenant-isolation tests between every client pair, SSRF-safe
+ingestion, signed webhooks. A real voice call test books and cancels an appointment end to end.
 
-## Metrics (real, measured live)
+## Measured on the live system
 
-- **548 ms** decision-model latency (3-question fan-out, TypeSafe Jev 1.13)
-- **$0.0000213** per model decision (provider-billed `usage.cost`)
-- **1536-dim** embeddings, HNSW cosine index in pgvector
-- **< 25 ms** deterministic risk gate (in-network, zero external calls)
-- **6-container** Docker topology: n8n · FastAPI/LangGraph · TypeScript gate ·
-  Postgres/pgvector · Redis (AOF) · crawl4ai
-- **5 req/s** edge rate limiting on AI endpoints; loopback-only databases
-- Live public status page + interactive demo dashboard with per-hop latency
-  animation of the real pipeline
+- Lead qualification p50 2.8 s / p95 4.2 s, with a fallback chain and a review route instead of errors
+- Deterministic policy gate ≈ 10 ms, no model call
+- Voice tools p95 ≈ 25 ms
+- Real voice call test 17/17 (docs question, two injection attempts, book + cancel, signed webhook stored)
+- 415 static checks, 98 per-client live tests, 21 voice tests, 81 app checks
 
 ## Highlights for proposals
 
-- Explainable risk decisions: documented additive risk model → score, per-gate
-  pass/fail, machine-readable reason codes — no black-box gating.
-- Fail-open engineering: model overlay can never block or fabricate; the
-  deterministic layer stays the authority.
-- Cost discipline: sub-cent-per-call decision modeling; free-tier-friendly stack.
-- Security posture: single root-restricted secrets file, Bearer + basic auth,
-  rate limiting, sanitized public surfaces.
+- Hard facts come from config, never from the model; out-of-scope questions are refused.
+- Explainable decisions: score, per-gate pass/fail and reason codes for every lead.
+- Adding a client is configuration, not development.
+- Runs on the client's own server or hosted; the client owns its data.
 
-**Live demo available on request** (interactive dashboard + public case-study page).
+**Live:** telemetry dashboard https://nukethemaii.github.io/ai-command-center/ · status page
+https://status.adaptivesystems.dev/status/stack · walkthrough of the private app on request.
