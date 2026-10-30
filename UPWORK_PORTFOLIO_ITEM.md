@@ -16,9 +16,10 @@ A self-hosted AI engine that businesses configure instead of commissioning. Each
 of config files: hard facts (hours, prices, services), documents, scoring rules and reply templates.
 From that, the engine answers customer questions with checkable citations and never invents a price
 or opening time, books real appointments into the business's Google Calendar and emails the
-confirmation, runs an ElevenLabs voice receptionist built from the same config, puts a chat widget
-(with a call button) on any website with one script tag, captures contact forms from any platform, and
-scores inbound leads with an LLM checked by a deterministic TypeScript policy gate. Every decision is
+confirmation and reminders with a one-click cancel link, runs an ElevenLabs voice receptionist built from the same config, puts a chat widget
+(with a call button) on any website with one script tag, captures contact forms from any platform,
+scores inbound leads with an LLM checked by a deterministic TypeScript policy gate, and sends every
+event to the business's own CRM through one signed webhook. Every decision is
 audit-logged per client. Security is tested, not assumed: injection detectors, tenant isolation
 between every client pair, SSRF-safe ingestion, signed webhooks, per-visitor caps on anything that costs.
 
@@ -29,7 +30,7 @@ between every client pair, SSRF-safe ingestion, signed webhooks, per-visitor cap
 - Voice tools p95 ≈ 25 ms
 - Real voice call test 17/17 (docs question, two injection attempts, book + cancel, signed webhook stored)
 - Chat turn 1–4 ms when code handles it, 1.3–3.7 s with the router model
-- 546 static checks, 101 per-client live tests, 43 chat, 15 forms, 5 calendar, 21 voice, 83 app checks
+- 778 static checks, 102 per-client live tests, 42 chat, 15 forms, 5 calendar, 21 voice, 90 app checks
 
 ## Highlights for proposals
 
@@ -37,7 +38,9 @@ between every client pair, SSRF-safe ingestion, signed webhooks, per-visitor cap
 - Explainable decisions: score, per-gate pass/fail and reason codes for every lead.
 - Adding a client is configuration, not development.
 - Channels plug into what the business already has: one script tag, a form URL, its own calendar.
-- Runs on the client's own server or hosted; the client owns its data.
+- Integrates with any CRM (HubSpot, Pipedrive, Google Sheets via n8n / Zapier / Make) through one webhook.
+- GDPR-ready: erase a person on request; the client owns its data.
+- Runs on the client's own server (versioned installer, upgrades with rollback) or hosted.
 
 **Live:** telemetry dashboard https://adaptivesystemsdev.github.io/ai-command-center/ · status page
 https://status.adaptivesystems.dev/status/stack · walkthrough of the private app on request.

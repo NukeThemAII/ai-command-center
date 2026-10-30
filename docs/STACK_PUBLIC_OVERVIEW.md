@@ -78,6 +78,8 @@ deterministic checks and goes to human review.
 
 - Docker Compose with health checks; every service is set to restart on its own after a reboot.
 - Nightly local backups (database, workflow and monitoring databases, configuration) with a restore test.
+- Versioned release bundle: idempotent installer, upgrades with backup, migrations and automatic rollback;
+  pinned dependencies and images.
 - Uptime Kuma monitors every service and the public hosts.
 - Static, per-client, chat, forms, calendar, voice and app test suites plus a live smoke set run after
   every change; a boot check verifies every service and public host after a restart.

@@ -40,11 +40,12 @@ against a schema and refuses to serve a broken one, while the other clients keep
 | Module | What it does |
 |---|---|
 | **support** | Answers from the client's documents (RAG) **and** from hard facts in the client's profile (hours, prices, address, policies). Multi-part questions are split and each part is answered. Every answer carries checkable citations; anything not in the knowledge base is refused. |
-| **booking** | Availability, booking and cancellation driven by the profile's opening hours, holidays and services, minus busy time in the business's own **Google Calendar** (each booking is written there as an event); conflicts return alternatives, never a raw error. Customers get a confirmation and cancellation email. |
+| **booking** | Availability, booking and cancellation driven by the profile's opening hours, holidays and services, minus busy time in the business's own **Google Calendar** (each booking is written there as an event); conflicts return alternatives, never a raw error. Customers get a confirmation, a reminder the day before and two hours before, and a signed one-click cancel link. |
 | **voice** | An ElevenLabs voice receptionist built **from the config** by one idempotent script: prompt, facts document, webhook tools, signed post-call webhook. |
 | **lead_scoring** | LLM sub-scores with evidence quotes → deterministic TypeScript policy gate → route (full / starter / needs_info / reject / review) → reply → audit log → Telegram alert. |
 | **chat** | One script tag on any website. The model only routes (intent, day, time, service); code answers, books and cancels. A booking needs an explicit yes on a summary. For businesses with lead scoring, a described project becomes one audited, scored lead. Businesses with a voice agent get a **Call** button in the same widget: the voice SDK loads only when pressed and the live transcript appears in the chat. The same assistant runs as the business's own **Telegram bot** (signed webhook; the contact step uses Telegram's verified share-phone button). |
 | **forms** | Any website form (WordPress, Webflow, Wix, plain HTML) POSTs to a per-client secret URL; fields are recognised generically; the submission is scored (lead scoring on) or stored and alerted. |
+| **integrations** | One universal, signed webhook per business: every lead, booking, form and call goes to the business's own CRM, Zapier, Make or n8n (a ready n8n recipe writes them to Google Sheets). |
 
 Three clients run from config today: our own lead intake, plus two **fictional** demo businesses (a
 dental & physio clinic and a plumbing company) used to prove the onboarding path. Alerts go to the
@@ -55,15 +56,19 @@ lead has waited 24 hours without a reply.
 
 The owner works from one private app instead of a dashboard per channel:
 
-- **Inbox:** every conversation (website chat, Telegram, voice calls, forms, API leads) as one timeline,
-  joined into one person by the contact they typed (never by anything a model guessed); reply by email
-  or straight into the visitor's Telegram chat; "needs you" shows leads still waiting for an answer.
+- **Inbox:** every conversation (website chat, Telegram, email, voice calls, forms, API leads) as one
+  timeline, joined into one person by the contact they typed (never by anything a model guessed); reply
+  by email or straight into the visitor's Telegram chat; "needs you" shows leads still waiting for an
+  answer; keyboard shortcuts, bulk actions, and **erase a person** (GDPR: anonymised everywhere, rows and
+  statistics kept).
 - **Settings:** per business: modules, alerts, limits, contact email, model chain. Every change is
   validated against the same schemas as the config files; a bad value is refused, never half-applied,
   and every change is logged.
 - **Delivery:** every email, alert and event the system sent, with what the recipient's mail server did
   (delivered, deferred, bounced), read from our own mail server's log.
-- **Mission control:** today by channel, voice minutes against their caps, model quotas, the live pipeline.
+- **Mission control:** a "needs attention" strip that appears only when something is wrong, today by
+  channel, conversion by channel, voice minutes against their caps, model quotas, the live pipeline.
+- **⌘K** jumps to any page, business, lead or Inbox search.
 
 ## Architecture
 
@@ -142,6 +147,11 @@ flowchart LR
   only for the engine's own address on its own network.
 - **Secrets stay out of logs**: form secrets live in the URL path, so those paths are not access-logged
   and the engine redacts its own log.
+- **Outbound webhooks can't be turned inward**: HTTPS only, every resolved address checked, the
+  connection pinned to the checked IP (no DNS rebinding), signed per business, retried with backoff.
+- **Right to erasure**: one action anonymises a person in one business across chat, leads, calls, forms,
+  email and bookings, at any age, and deletes their voice recordings at the provider; the log keeps only
+  a hash and counts.
 
 ## Measured on the live system
 
@@ -152,12 +162,17 @@ flowchart LR
 | Voice tools | **p95 ≈ 25 ms** | as ElevenLabs calls them over the public host |
 | Real voice call test | **17/17** | one real call: docs-only question, two injection attempts, book + cancel in the same call, DB + signed webhook verified |
 | Chat turn | **1–4 ms** when code handles it · **1.3–3.7 s** with the router model | live, 2026-10-29 |
-| Automated checks | **546 static · 101 per-client live · 43 chat · 15 forms · 5 calendar · 21 voice · 83 app** | run after every change; a 15-case live smoke set during development |
+| Automated checks | **778 static · 102 per-client live · 42 chat · 15 forms · 5 calendar · 21 voice · 90 app** | run after every change; a 15-case live smoke set during development |
 
 ## Deployment
 
-Runs on the client's own server (installer bundle: Docker Compose + config templates) or hosted by
-us. The engine is the same in both; a client's data, keys and configuration stay in their folder.
+Runs on the client's own server or hosted by us; the engine is the same in both and a client's data,
+keys and configuration stay in their folder. A versioned release bundle installs in idempotent phases
+(DNS check, certificates, mail with DKIM, stack, first business, health check) and upgrades with a
+backup, database migrations and automatic rollback. Dependencies and images are pinned, so every
+install of a release is identical. An MCP server lets an AI agent check a client's installation
+(health, logs with personal data masked, mail delivery) without SSH; anything that changes state needs
+an explicit confirmation.
 
 ## What I learned
 
@@ -175,6 +190,9 @@ us. The engine is the same in both; a client's data, keys and configuration stay
   after a passing test, and a static check quotes such regexes.
 - **"Deny" can leak.** An nginx `limit_except … deny` wrote the request line, secret included, to the
   error log. A plain `return 405` doesn't; the affected secrets were rotated the same night.
+- **A "never matches" pattern can match everything.** In PostgreSQL the regex `$^` matches an empty
+  string; used as a placeholder in an erasure query it would have anonymised every empty row. Found in
+  review before first use; empty lists now stay empty, with a test.
 - **Deliverability is reputation, not configuration.** SPF, DKIM, DMARC and reverse DNS all passed and
   the first mails still landed in spam: a new domain and IP have to earn trust.
 
