@@ -3,8 +3,9 @@
 > **Case study.** A self-hosted AI automation engine that is configured per business, not rebuilt per
 > business: a support bot grounded in the client's own documents and hard facts, appointment booking
 > into the business's own Google Calendar, an AI voice receptionist, a website chat widget with a call
-> button, contact-form capture, confirmation emails from our own mail server, and lead scoring with a
-> deterministic policy gate. Every number on this page was measured on the running system. The source
+> button and the same assistant on Telegram, contact-form capture, confirmation emails from our own mail
+> server, and lead scoring with a deterministic policy gate, all run from one private operations app.
+> Every number on this page was measured on the running system. The source
 > code is private; this repository holds the case study and the live telemetry dashboard.
 
 <p align="center">
@@ -42,12 +43,27 @@ against a schema and refuses to serve a broken one, while the other clients keep
 | **booking** | Availability, booking and cancellation driven by the profile's opening hours, holidays and services, minus busy time in the business's own **Google Calendar** (each booking is written there as an event); conflicts return alternatives, never a raw error. Customers get a confirmation and cancellation email. |
 | **voice** | An ElevenLabs voice receptionist built **from the config** by one idempotent script: prompt, facts document, webhook tools, signed post-call webhook. |
 | **lead_scoring** | LLM sub-scores with evidence quotes → deterministic TypeScript policy gate → route (full / starter / needs_info / reject / review) → reply → audit log → Telegram alert. |
-| **chat** | One script tag on any website. The model only routes (intent, day, time, service); code answers, books and cancels. A booking needs an explicit yes on a summary. For businesses with lead scoring, a described project becomes one audited, scored lead. Businesses with a voice agent get a **Call** button in the same widget: the voice SDK loads only when pressed and the live transcript appears in the chat. |
+| **chat** | One script tag on any website. The model only routes (intent, day, time, service); code answers, books and cancels. A booking needs an explicit yes on a summary. For businesses with lead scoring, a described project becomes one audited, scored lead. Businesses with a voice agent get a **Call** button in the same widget: the voice SDK loads only when pressed and the live transcript appears in the chat. The same assistant runs as the business's own **Telegram bot** (signed webhook; the contact step uses Telegram's verified share-phone button). |
 | **forms** | Any website form (WordPress, Webflow, Wix, plain HTML) POSTs to a per-client secret URL; fields are recognised generically; the submission is scored (lead scoring on) or stored and alerted. |
 
 Three clients run from config today: our own lead intake, plus two **fictional** demo businesses (a
 dental & physio clinic and a plumbing company) used to prove the onboarding path. Alerts go to the
-business by Telegram and email.
+business by email, Telegram or Slack (chosen per business), with a daily digest and a reminder when a
+lead has waited 24 hours without a reply.
+
+## One app to run it
+
+The owner works from one private app instead of a dashboard per channel:
+
+- **Inbox:** every conversation (website chat, Telegram, voice calls, forms, API leads) as one timeline,
+  joined into one person by the contact they typed (never by anything a model guessed); reply by email
+  or straight into the visitor's Telegram chat; "needs you" shows leads still waiting for an answer.
+- **Settings:** per business: modules, alerts, limits, contact email, model chain. Every change is
+  validated against the same schemas as the config files; a bad value is refused, never half-applied,
+  and every change is logged.
+- **Delivery:** every email, alert and event the system sent, with what the recipient's mail server did
+  (delivered, deferred, bounced), read from our own mail server's log.
+- **Mission control:** today by channel, voice minutes against their caps, model quotas, the live pipeline.
 
 ## Architecture
 
