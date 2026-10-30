@@ -1,10 +1,11 @@
 # Adaptive Systems — Deterministic AI Infrastructure
 
 > **Case study.** A self-hosted AI automation engine that is configured per business, not rebuilt per
-> business: a support bot grounded in the client's own documents and hard facts, appointment booking,
-> an AI voice receptionist, and lead scoring with a deterministic policy gate. Every number on this
-> page was measured on the running system. The source code is private; this repository holds the
-> case study and the live telemetry dashboard.
+> business: a support bot grounded in the client's own documents and hard facts, appointment booking
+> into the business's own Google Calendar, an AI voice receptionist, a website chat widget with a call
+> button, contact-form capture, confirmation emails from our own mail server, and lead scoring with a
+> deterministic policy gate. Every number on this page was measured on the running system. The source
+> code is private; this repository holds the case study and the live telemetry dashboard.
 
 <p align="center">
   <b>Live:</b> <a href="https://adaptivesystemsdev.github.io/ai-command-center/">telemetry dashboard</a> ·
@@ -38,21 +39,27 @@ against a schema and refuses to serve a broken one, while the other clients keep
 | Module | What it does |
 |---|---|
 | **support** | Answers from the client's documents (RAG) **and** from hard facts in the client's profile (hours, prices, address, policies). Multi-part questions are split and each part is answered. Every answer carries checkable citations; anything not in the knowledge base is refused. |
-| **booking** | Availability, booking and cancellation driven by the profile's opening hours, holidays and services; conflicts return alternatives, never a raw error. |
+| **booking** | Availability, booking and cancellation driven by the profile's opening hours, holidays and services, minus busy time in the business's own **Google Calendar** (each booking is written there as an event); conflicts return alternatives, never a raw error. Customers get a confirmation and cancellation email. |
 | **voice** | An ElevenLabs voice receptionist built **from the config** by one idempotent script: prompt, facts document, webhook tools, signed post-call webhook. |
 | **lead_scoring** | LLM sub-scores with evidence quotes → deterministic TypeScript policy gate → route (full / starter / needs_info / reject / review) → reply → audit log → Telegram alert. |
-| **chat**, **forms** | Website widget and form-lead webhook on the same tools (planned next). |
+| **chat** | One script tag on any website. The model only routes (intent, day, time, service); code answers, books and cancels. A booking needs an explicit yes on a summary. For businesses with lead scoring, a described project becomes one audited, scored lead. Businesses with a voice agent get a **Call** button in the same widget: the voice SDK loads only when pressed and the live transcript appears in the chat. |
+| **forms** | Any website form (WordPress, Webflow, Wix, plain HTML) POSTs to a per-client secret URL; fields are recognised generically; the submission is scored (lead scoring on) or stored and alerted. |
 
 Three clients run from config today: our own lead intake, plus two **fictional** demo businesses (a
-dental & physio clinic and a plumbing company) used to prove the onboarding path.
+dental & physio clinic and a plumbing company) used to prove the onboarding path. Alerts go to the
+business by Telegram and email.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
     subgraph Leads
-      W([Webhook / form<br/>HTTPS · secret]) --> N[n8n<br/>orchestration]
+      W([Lead webhook<br/>HTTPS · secret]) --> N[n8n<br/>orchestration]
       N --> A
+    end
+    subgraph Website
+      S([Chat widget + Call button<br/>key · allowed origin]) --> A
+      F([Contact form<br/>per-client secret]) --> A
     end
     subgraph Voice
       C([Caller]) --> E[ElevenLabs agent<br/>STT · LLM · TTS]
@@ -63,6 +70,8 @@ flowchart LR
     A <--> R[(Redis<br/>session memory)]
     A --> P[(PostgreSQL + pgvector<br/>audit · RAG · bookings · calls)]
     A --> M[Mission-control app<br/>Next.js · private]
+    A --> GC[Google Calendar<br/>service account]
+    A --> MX[Postfix + DKIM<br/>send-only, own server]
     K[devstack MCP<br/>Claude connector] --> A
 ```
 
@@ -74,7 +83,9 @@ flowchart LR
 | data | PostgreSQL 16 · pgvector | 1536-dim embeddings (HNSW), audit log, bookings, voice calls; `client_id` on every row |
 | memory | Redis 7 (AOF) | per-client, per-session memory; rate limits |
 | voice | ElevenLabs Agents | hosted speech; all facts and bookings come from our tools |
-| app | Next.js 16 · TypeScript · Tailwind · shadcn/ui | private mission-control UI (live events, pipeline replay, audit, security showcase) |
+| app | Next.js 16 · TypeScript · Tailwind · shadcn/ui | private mission-control UI (live events, pipeline replay, audit, security showcase, chat + voice demos) |
+| website | Next.js 16 static export | company site with live data from the public stats endpoint and the status page; no AI on the public site |
+| mail | Postfix + OpenDKIM | send-only, SPF / DKIM / DMARC aligned, relays for the engine alone on a dedicated network |
 | MCP | Model Context Protocol server | lets Claude query and test the stack with scoped tools |
 | ops | nginx · Let's Encrypt · Uptime Kuma · CrowdSec | TLS, per-endpoint routing and rate limits, monitoring |
 
@@ -106,6 +117,15 @@ flowchart LR
 - **Minimal public surface**: the API host serves only machine endpoints (everything else 404), the
   app is behind authentication, databases are bound to loopback, and public stats are sanitized
   (no personal data, test traffic excluded).
+- **Origin is not authentication**: a browser `Origin` header can be forged by any script, so the
+  widget's publishable key + origin only pick the business; costly actions are capped per visitor and
+  per business (chat bookings, calls, messages), and our own demo origin is accepted only through the
+  password-protected host, which vouches for it with a header the public host strips.
+- **Email that can't be abused**: customer addresses are unverified (anyone can type one), so customer
+  emails carry no visitor text, are capped per mailbox and per business, and the mail server relays
+  only for the engine's own address on its own network.
+- **Secrets stay out of logs**: form secrets live in the URL path, so those paths are not access-logged
+  and the engine redacts its own log.
 
 ## Measured on the live system
 
@@ -115,7 +135,8 @@ flowchart LR
 | Deterministic policy gate | **≈ 10 ms** | live average, no model call |
 | Voice tools | **p95 ≈ 25 ms** | as ElevenLabs calls them over the public host |
 | Real voice call test | **17/17** | one real call: docs-only question, two injection attempts, book + cancel in the same call, DB + signed webhook verified |
-| Automated checks | **415 static · 98 per-client live · 21 voice · 81 app** | run after every change; a 15-case live smoke set during development |
+| Chat turn | **1–4 ms** when code handles it · **1.3–3.7 s** with the router model | live, 2026-10-29 |
+| Automated checks | **546 static · 101 per-client live · 43 chat · 15 forms · 5 calendar · 21 voice · 83 app** | run after every change; a 15-case live smoke set during development |
 
 ## Deployment
 
@@ -133,6 +154,13 @@ us. The engine is the same in both; a client's data, keys and configuration stay
 - **pgvector**: explicit `::vector` casts with psycopg3; an ivfflat index built on an empty table
   silently matches nothing — use HNSW for incremental fills.
 - **LangGraph drops undeclared state keys** between nodes; declare every inter-node field.
+- **A config test can pass while the reload fails.** An unquoted `{8,100}` regex in an nginx location
+  failed `nginx -t`, but the reload ran anyway and the old config kept serving. Deploys now reload only
+  after a passing test, and a static check quotes such regexes.
+- **"Deny" can leak.** An nginx `limit_except … deny` wrote the request line, secret included, to the
+  error log. A plain `return 405` doesn't; the affected secrets were rotated the same night.
+- **Deliverability is reputation, not configuration.** SPF, DKIM, DMARC and reverse DNS all passed and
+  the first mails still landed in spam: a new domain and IP have to earn trust.
 
 ---
 

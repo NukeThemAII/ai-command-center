@@ -1,12 +1,12 @@
 # Upwork portfolio item — Adaptive Systems AI stack
 
-**Title:** AI Receptionist, Support Bot & Lead Scoring — one config-driven, self-hosted engine
+**Title:** AI Receptionist, Website Chat & Lead Scoring — one config-driven, self-hosted engine
 
 **Role:** Sole engineer — architecture, backend (Python + TypeScript), voice agent, data layer,
 orchestration, infrastructure, security, testing
 
 **Skills:** Python, TypeScript, FastAPI, LangGraph, Pydantic AI, RAG, pgvector, PostgreSQL, Redis,
-n8n, ElevenLabs, Next.js, Docker, nginx, MCP
+n8n, ElevenLabs, Google Calendar API, Postfix, Next.js, Docker, nginx, MCP
 
 ---
 
@@ -15,12 +15,12 @@ n8n, ElevenLabs, Next.js, Docker, nginx, MCP
 A self-hosted AI engine that businesses configure instead of commissioning. Each client is a folder
 of config files: hard facts (hours, prices, services), documents, scoring rules and reply templates.
 From that, the engine answers customer questions with checkable citations and never invents a price
-or opening time, books and cancels real appointments, runs an ElevenLabs voice receptionist built
-automatically from the same config, and scores inbound leads with an LLM whose output is checked by a
-deterministic TypeScript policy gate. Every decision is audit-logged per client. Three clients run
-today from config alone (our intake plus two fictional demo businesses). Security is tested, not
-assumed: prompt-injection detectors, tenant-isolation tests between every client pair, SSRF-safe
-ingestion, signed webhooks. A real voice call test books and cancels an appointment end to end.
+or opening time, books real appointments into the business's Google Calendar and emails the
+confirmation, runs an ElevenLabs voice receptionist built from the same config, puts a chat widget
+(with a call button) on any website with one script tag, captures contact forms from any platform, and
+scores inbound leads with an LLM checked by a deterministic TypeScript policy gate. Every decision is
+audit-logged per client. Security is tested, not assumed: injection detectors, tenant isolation
+between every client pair, SSRF-safe ingestion, signed webhooks, per-visitor caps on anything that costs.
 
 ## Measured on the live system
 
@@ -28,13 +28,15 @@ ingestion, signed webhooks. A real voice call test books and cancels an appointm
 - Deterministic policy gate ≈ 10 ms, no model call
 - Voice tools p95 ≈ 25 ms
 - Real voice call test 17/17 (docs question, two injection attempts, book + cancel, signed webhook stored)
-- 415 static checks, 98 per-client live tests, 21 voice tests, 81 app checks
+- Chat turn 1–4 ms when code handles it, 1.3–3.7 s with the router model
+- 546 static checks, 101 per-client live tests, 43 chat, 15 forms, 5 calendar, 21 voice, 83 app checks
 
 ## Highlights for proposals
 
 - Hard facts come from config, never from the model; out-of-scope questions are refused.
 - Explainable decisions: score, per-gate pass/fail and reason codes for every lead.
 - Adding a client is configuration, not development.
+- Channels plug into what the business already has: one script tag, a form URL, its own calendar.
 - Runs on the client's own server or hosted; the client owns its data.
 
 **Live:** telemetry dashboard https://adaptivesystemsdev.github.io/ai-command-center/ · status page
