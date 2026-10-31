@@ -109,7 +109,7 @@ flowchart LR
 | memory | Redis 7 (AOF) | per-client, per-session memory; rate limits |
 | voice | ElevenLabs Agents | hosted speech; all facts and bookings come from our tools |
 | app | Next.js 16 · TypeScript · Tailwind · shadcn/ui | private mission-control UI (live events, pipeline replay, audit, security showcase, chat + voice demos) |
-| website | Next.js 16 static export | company site with live data from the public stats endpoint and the status page; our own assistant appears there only while the owner switches it on |
+| website | Next.js 16 static export | company site with a live activity feed (fixed-template events, no personal data), live stats and the status page; our own assistant appears there only while the owner switches it on |
 | mail | Postfix + OpenDKIM | send-only, SPF / DKIM / DMARC aligned, relays for the engine alone on a dedicated network |
 | MCP | Model Context Protocol server | lets Claude query and test the stack with scoped tools |
 | ops | nginx · Let's Encrypt · Uptime Kuma · CrowdSec | TLS, per-endpoint routing and rate limits, monitoring |
