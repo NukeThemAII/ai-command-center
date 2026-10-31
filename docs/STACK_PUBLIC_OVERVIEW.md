@@ -57,7 +57,7 @@ deterministic checks and goes to human review.
 | redis | Redis 7 (AOF) | session memory, rate limits |
 | crawl4ai | Playwright-based crawler | admin document ingestion |
 | app | Next.js 16 | private mission-control UI |
-| website | Next.js 16 static export | company site with live data; our assistant appears there only while the owner switches it on |
+| website | Next.js 16 static export | company site with a live activity feed of the stack (fixed-template events, no personal data) and live stats; our assistant appears there only while the owner switches it on |
 | mail | Postfix + OpenDKIM | send-only mail from the engine (SPF / DKIM / DMARC) |
 | uptime-kuma | monitoring | public status page |
 
