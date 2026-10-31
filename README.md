@@ -65,8 +65,13 @@ The owner works from one private app instead of a dashboard per channel:
   toasts (optional desktop notifications), saved replies per business, read / unread across devices;
   "needs you" shows leads still waiting for an answer; keyboard shortcuts, bulk actions, and **erase a person** (GDPR: anonymised everywhere, rows and
   statistics kept).
-- **Settings:** per business: modules, alerts, limits, contact email, model chain, CRM webhook,
-  reminders. Every change is shown as old → new before saving, validated against the same schemas as the
+- **Bookings:** every appointment of every business from every channel in one calendar and list: who,
+  when, which channel, whether it is in the business's Google Calendar; cancel on the customer's behalf (the
+  event goes, the customer gets the cancellation email), mark attended / no-show after the visit, or book a
+  caller in by hand with the same rules as online.
+- **Settings:** per business: modules, notification channels (the Inbox always gets everything; Telegram,
+  Slack and email are switches), limits, contact email, model chain, CRM webhook, reminders, contact-form
+  confirmations; every setting has an (i) explanation. Every change is shown as old → new before saving, validated against the same schemas as the
   config files; a bad value is refused, never half-applied, and every change is logged.
 - **Answer quality:** each business has held-out questions with expected facts, sources and refusals;
   one button runs them through the real engine (32/32 across the three businesses).
@@ -168,7 +173,7 @@ flowchart LR
 | Voice tools | **p95 ≈ 25 ms** | as ElevenLabs calls them over the public host |
 | Real voice call test | **17/17** | one real call: docs-only question, two injection attempts, book + cancel in the same call, DB + signed webhook verified |
 | Chat turn | **1–4 ms** when code handles it · **1.3–3.7 s** with the router model | live, 2026-10-29 |
-| Automated checks | **789 static · 102 per-client live · 32/32 support evals · 42 chat · 15 forms · 5 calendar · 21 voice · 90 app** | run after every change; a 15-case live smoke set during development |
+| Automated checks | **802 static · 102 per-client live · 39/39 support evals · 42 chat · 15 forms · 5 calendar · 21 voice · 90 app** | run after every change; a 15-case live smoke set during development |
 
 ## Deployment
 
