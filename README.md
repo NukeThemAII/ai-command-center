@@ -6,10 +6,11 @@
 > button and the same assistant on Telegram, contact-form capture, confirmation emails from our own mail
 > server, and lead scoring with a deterministic policy gate, all run from one private operations app.
 > Every number on this page was measured on the running system. The source
-> code is private; this repository holds the case study and the live telemetry dashboard.
+> code is private; this repository holds the case study.
 
 <p align="center">
-  <b>Live:</b> <a href="https://adaptivesystemsdev.github.io/ai-command-center/">telemetry dashboard</a> ·
+  <b>Live:</b> <a href="https://adaptivesystems.dev/live">live numbers &amp; activity</a> ·
+  <a href="https://adaptivesystems.dev/platform">product page</a> ·
   <a href="https://status.adaptivesystems.dev/status/stack">status page</a> ·
   <a href="https://adaptivesystems.dev/">adaptivesystems.dev</a><br>
   <i>Single VPS, Docker Compose, nginx + Let's Encrypt, Uptime Kuma monitoring.</i><br>

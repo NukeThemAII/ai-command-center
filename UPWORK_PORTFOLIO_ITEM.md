@@ -45,5 +45,5 @@ between every client pair, SSRF-safe ingestion, signed webhooks, per-visitor cap
 - GDPR erasure by anonymisation; signed webhooks into any CRM or a Google Sheet.
 - Runs on the client's own server (installer with upgrades and rollback) or hosted; the client owns its data.
 
-**Live:** telemetry dashboard https://adaptivesystemsdev.github.io/ai-command-center/ · status page
+**Live:** live numbers https://adaptivesystems.dev/live · status page
 https://status.adaptivesystems.dev/status/stack · walkthrough of the private app on request.

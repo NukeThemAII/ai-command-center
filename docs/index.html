@@ -1,197 +1,28 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Adaptive Systems — Live Telemetry</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true"%3E%3Cdefs%3E%3ClinearGradient id="gi" gradientUnits="userSpaceOnUse" x1="8" y1="54" x2="60" y2="10"%3E%3Cstop offset="0" stop-color="%233B6CF6"/%3E%3Cstop offset=".55" stop-color="%2322B8F0"/%3E%3Cstop offset="1" stop-color="%232EE6C8"/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width="64" height="64" rx="14" fill="%230E1726"/%3E%3Cg fill="url%28%23gi%29" stroke="url%28%23gi%29"%3E%3Crect x="11" y="27.0" width="5" height="10" rx="2.5" stroke="none"/%3E%3Crect x="19" y="21.0" width="5" height="22" rx="2.5" stroke="none"/%3E%3Crect x="27" y="14.0" width="5" height="36" rx="2.5" stroke="none"/%3E%3Crect x="35" y="19.0" width="5" height="26" rx="2.5" stroke="none"/%3E%3Crect x="43" y="25.0" width="5" height="14" rx="2.5" stroke="none"/%3E%3Cpath d="M48 32 C52 32 52 22 56 20" fill="none" stroke-width="3" stroke-linecap="round"/%3E%3Ccircle cx="56" cy="19" r="4" stroke="none"/%3E%3C/g%3E%3C/svg%3E">
-<meta name="description" content="Live telemetry of the Adaptive Systems AI stack: support bot (RAG + hard facts), booking, voice receptionist and lead scoring with a deterministic gate.">
+<title>Adaptive Systems — live numbers</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://adaptivesystems.dev/live">
+<meta http-equiv="refresh" content="0; url=https://adaptivesystems.dev/live">
 <style>
-  :root {
-    --bg: #0b0e14; --panel: #121722; --panel2: #1a2130; --border: #232c3d;
-    --text: #d7e0ea; --muted: #8b98ab; --accent: #4da3ff; --green: #37d67a;
-    --yellow: #ffd166; --red: #ff6b6b; --blue: #6ea8fe; --purple: #b28dff;
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text);
-         font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px 60px; }
-  header { padding: 40px 0 16px; border-bottom: 1px solid var(--border); }
-  .eyebrow { color: var(--accent); letter-spacing: 2.5px; font-size: 11px; text-transform: uppercase; }
-  h1 { font-size: 30px; margin: 8px 0 6px; }
-  .sub { color: var(--muted); max-width: 760px; }
-  .badges img { margin: 14px 6px 0 0; }
-  a.cta { display: inline-block; margin: 16px 10px 0 0; background: var(--accent); color: #06121f;
-          padding: 10px 18px; border-radius: 8px; text-decoration: none; font-weight: 700; }
-  a.cta.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
-  .live { display: flex; align-items: center; gap: 8px; color: var(--green); font-size: 12px; margin-top: 14px; }
-  .live.stale { color: var(--yellow); }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: blink 1.8s infinite; }
-  @keyframes blink { 50% { opacity: .35; } }
-  h2 { font-size: 19px; margin: 38px 0 12px; border-top: 1px solid var(--border); padding-top: 28px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 16px 0; }
-  .kpi { background: var(--panel); border: 1px solid var(--border); border-radius: 11px; padding: 15px; }
-  .kpi .l { color: var(--muted); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
-  .kpi .v { font-size: 24px; font-weight: 800; margin-top: 5px; }
-  .kpi .f { color: var(--muted); font-size: 11px; margin-top: 3px; }
-  .green { color: var(--green); } .blue { color: var(--blue); } .yellow { color: var(--yellow); }
-  .purple { color: var(--purple); }
-  .svc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
-  .svc { background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
-  .svc .n { font-weight: 700; font-size: 13px; }
-  .chip { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 11px; }
-  .chip i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-  .chip.up i { background: var(--green); box-shadow: 0 0 7px var(--green); }
-  .chip.down i { background: var(--red); box-shadow: 0 0 7px var(--red); }
-  .bar { display: flex; height: 10px; border-radius: 6px; overflow: hidden; background: var(--panel2); margin-top: 10px; }
-  .bar span { display: block; height: 100%; }
-  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 11px; color: var(--muted); }
-  .legend b { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
-  .pipeline { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin: 12px 0; }
-  .pnode { background: var(--panel2); border: 1.5px solid var(--border); border-radius: 10px;
-           padding: 9px 12px; text-align: center; min-width: 96px; }
-  .pnode .t { font-size: 12px; font-weight: 700; }
-  .pnode .s { font-size: 10px; color: var(--muted); }
-  .pnode.mem { border-style: dashed; }
-  .arrow { color: var(--muted); }
-  .lane { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-top: 16px; }
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; margin: 14px 0; }
-  th, td { text-align: left; padding: 9px 11px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
-  th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .6px; }
-  code { color: var(--accent); }
-  footer { margin-top: 46px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
-  footer a { color: var(--accent); }
+  :root { color-scheme: dark light; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0E1726; color: #E6EDF7;
+         font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 34rem; padding: 2rem 1rem; }
+  a { color: #22B8F0; }
 </style>
 </head>
 <body>
-<div class="wrap">
-
-<header>
-  <div class="brand-mark" aria-hidden="true" style="height:40px;width:73px;margin-bottom:14px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 60" width="73" height="40"><defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="0" y1="60" x2="110" y2="4"><stop offset="0" stop-color="#3B6CF6"/><stop offset=".55" stop-color="#22B8F0"/><stop offset="1" stop-color="#2EE6C8"/></linearGradient></defs><g transform="translate(0 -2)" fill="url(#g)" stroke="url(#g)"><rect x="4.0" y="29.0" width="4" height="6" rx="2" stroke="none"/><rect x="11.5" y="24.0" width="4" height="16" rx="2" stroke="none"/><rect x="19.0" y="17.0" width="4" height="30" rx="2" stroke="none"/><rect x="26.5" y="22.0" width="4" height="20" rx="2" stroke="none"/><rect x="34.0" y="27.0" width="4" height="10" rx="2" stroke="none"/><rect x="41.5" y="10.0" width="4" height="44" rx="2" stroke="none"/><rect x="49.0" y="17.0" width="4" height="30" rx="2" stroke="none"/><rect x="56.5" y="26.0" width="4" height="12" rx="2" stroke="none"/><path d="M60.5 32 C66.5 32 64 29 70 25" fill="none" stroke-width="2.2" stroke-linecap="round"/><line x1="70" y1="25" x2="80" y2="11" stroke-width="2" stroke-linecap="round"/><line x1="70" y1="25" x2="87" y2="33" stroke-width="2" stroke-linecap="round"/><line x1="80" y1="11" x2="87" y2="33" stroke-width="2" stroke-linecap="round"/><line x1="80" y1="11" x2="99" y2="8" stroke-width="2" stroke-linecap="round"/><line x1="87" y1="33" x2="105" y2="27" stroke-width="2" stroke-linecap="round"/><line x1="99" y1="8" x2="105" y2="27" stroke-width="2" stroke-linecap="round"/><line x1="87" y1="33" x2="95" y2="50" stroke-width="2" stroke-linecap="round"/><circle cx="70" cy="25" r="3.1" stroke="none"/><circle cx="80" cy="11" r="3.1" stroke="none"/><circle cx="87" cy="33" r="3.1" stroke="none"/><circle cx="99" cy="8" r="3.1" stroke="none"/><circle cx="105" cy="27" r="3.1" stroke="none"/><circle cx="95" cy="50" r="3.1" stroke="none"/></g></svg></div>
-  <div class="eyebrow">Adaptive Systems · Live VPS Telemetry</div>
-  <h1>Deterministic AI Infrastructure</h1>
-  <div class="sub">One self-hosted engine, configured per business: a support bot grounded in the client's own
-    documents and hard facts, appointment booking, an AI voice receptionist, and lead scoring with a deterministic
-    policy gate. This page reads <b>live, sanitized data</b> from the running system.</div>
-  <div class="badges">
-    <img alt="stack" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/adaptivesystemsdev/ai-command-center/main/docs/badge-stack.json">
-    <img alt="leads" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/adaptivesystemsdev/ai-command-center/main/docs/badge-leads.json">
-    <img alt="latency" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/adaptivesystemsdev/ai-command-center/main/docs/badge-latency.json">
-    <img alt="vectors" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/adaptivesystemsdev/ai-command-center/main/docs/badge-vectors.json">
-  </div>
-  <div>
-    <a class="cta" href="https://adaptivesystems.dev/">adaptivesystems.dev</a>
-    <a class="cta ghost" href="https://status.adaptivesystems.dev/status/stack">Status page</a>
-    <a class="cta ghost" href="https://github.com/adaptivesystemsdev/ai-command-center">Case study</a>
-  </div>
-  <div class="live" id="live"><span class="dot"></span><span id="freshness">connecting to the live endpoint…</span></div>
-</header>
-
-<h2>System KPIs</h2>
-<div class="grid" id="kpis"><div class="kpi"><div class="l">loading</div><div class="v">…</div></div></div>
-
-<h2>Lead routing (all time)</h2>
-<div id="routes" class="kpi"><div class="l">loading…</div></div>
-
-<h2>Service health</h2>
-<div class="svc-grid" id="services"><div class="svc"><div class="n">loading…</div></div></div>
-
-<h2>Architecture</h2>
-<div class="lane">Lead pipeline</div>
-<div class="pipeline">
-  <div class="pnode"><div class="t">Webhook / form</div><div class="s">HTTPS · secret</div></div><div class="arrow">→</div>
-  <div class="pnode"><div class="t">n8n</div><div class="s">orchestration</div></div><div class="arrow">→</div>
-  <div class="pnode"><div class="t">LLM sub-scores</div><div class="s">evidence quotes</div></div><div class="arrow">→</div>
-  <div class="pnode"><div class="t">TS policy gate</div><div class="s">deterministic · reason codes</div></div><div class="arrow">→</div>
-  <div class="pnode"><div class="t">Route + reply</div><div class="s">full · starter · needs_info · reject · review</div></div><div class="arrow">→</div>
-  <div class="pnode"><div class="t">Audit + alert</div><div class="s">Postgres · Telegram</div></div>
-</div>
-<div class="lane">Support &amp; voice</div>
-<div class="pipeline">
-  <div class="pnode"><div class="t">Caller / visitor</div><div class="s">voice or chat</div></div><div class="arrow">→</div>
-  <div class="pnode"><div class="t">ElevenLabs agent</div><div class="s">STT · LLM · TTS</div></div><div class="arrow">→</div>
-  <div class="pnode"><div class="t">Webhook tools</div><div class="s">per-client secret</div></div><div class="arrow">→</div>
-  <div class="pnode"><div class="t">Facts · RAG · booking</div><div class="s">FastAPI engine</div></div><div class="arrow">⇄</div>
-  <div class="pnode mem"><div class="t">pgvector · Redis</div><div class="s">per-client data</div></div>
-</div>
-
-<h2>Measured on the live system</h2>
-<div class="table-wrap">
-<table>
-  <thead><tr><th>What</th><th>Value</th><th>Notes</th></tr></thead>
-  <tbody>
-    <tr><td>Lead qualification (LLM, end to end)</td><td>p50 2.8 s · p95 4.2 s</td><td>Gemini 3.8 Flash primary, 8 s deadline per model, fallback chain, degraded mode routes to review (never a 5xx)</td></tr>
-    <tr><td>Deterministic policy gate</td><td id="gate">≈ 10 ms</td><td>in-network, no model call; average from live traffic</td></tr>
-    <tr><td>Voice tools (facts, availability, book, cancel)</td><td>p95 ≈ 25 ms</td><td>as ElevenLabs calls them, over the public API host</td></tr>
-    <tr><td>Embeddings</td><td>1536-dim</td><td>text-embedding-3-small · pgvector HNSW cosine</td></tr>
-    <tr><td>Clients</td><td>3 from config</td><td>our own intake + two fictional demo businesses (clinic, plumber), added with config files only — no code changes</td></tr>
-  </tbody>
-</table>
-</div>
-
-<footer>
-  Live data: <code>https://api.adaptivesystems.dev/public/stats</code> (sanitized, cached; test traffic excluded)
-  · fallback: the snapshot committed in this repository ·
-  <a href="https://github.com/adaptivesystemsdev/ai-command-center">adaptivesystemsdev/ai-command-center</a>
-</footer>
-</div>
-
-<script>
-const LIVE_URL = "https://api.adaptivesystems.dev/public/stats";
-const FALLBACK = "./live-stats.json";
-const ROUTE_COLOURS = { full: "var(--green)", starter: "var(--blue)", needs_info: "var(--yellow)",
-                        review: "var(--purple)", reject: "var(--red)" };
-const esc = (v) => String(v ?? "—").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
-
-function render(s, live) {
-  const box = document.getElementById("live");
-  box.classList.toggle("stale", !live);
-  document.getElementById("freshness").textContent =
-    `${live ? "live" : "snapshot"} · updated ${new Date((s.generated_at || Date.now() / 1000) * 1000).toUTCString()}`;
-  const c = s.counters || {};
-  const services = s.services || [];
-  const up = services.filter((x) => x.status === "up").length;
-  document.getElementById("kpis").innerHTML = `
-    <div class="kpi"><div class="l">Services up</div><div class="v green">${up}/${services.length}</div>
-      <div class="f">core containers, checked live</div></div>
-    <div class="kpi"><div class="l">Leads scored</div><div class="v blue">${esc(c.leads_scored)}</div>
-      <div class="f">real traffic · every decision audit-logged</div></div>
-    <div class="kpi"><div class="l">Avg gate latency</div><div class="v purple">${esc(c.avg_gate_latency_ms)}<span class="f"> ms</span></div>
-      <div class="f">deterministic engine</div></div>
-    <div class="kpi"><div class="l">Vectors indexed</div><div class="v yellow">${esc(c.total_vectors)}</div>
-      <div class="f">1536-dim · HNSW cosine</div></div>`;
-  if (c.avg_gate_latency_ms != null) document.getElementById("gate").textContent = `${c.avg_gate_latency_ms} ms`;
-  // counts are forced to non-negative integers: nothing from the payload reaches the HTML unescaped
-  const routes = Object.entries(c.route_distribution || {})
-    .map(([k, v]) => [String(k), Math.max(0, Math.trunc(Number(v)) || 0)]).sort((a, b) => b[1] - a[1]);
-  const total = routes.reduce((n, [, v]) => n + v, 0);
-  document.getElementById("routes").innerHTML = total ? `
-    <div class="l">${total} routed leads</div>
-    <div class="bar">${routes.map(([k, v]) => `<span style="width:${(100 * v / total).toFixed(2)}%;background:${ROUTE_COLOURS[k] || "var(--muted)"}"></span>`).join("")}</div>
-    <div class="legend">${routes.map(([k, v]) => `<span><b style="background:${ROUTE_COLOURS[k] || "var(--muted)"}"></b>${esc(k)} ${v}</span>`).join("")}</div>`
-    : `<div class="l">no routed leads yet</div>`;
-  document.getElementById("services").innerHTML = services.map((x) => `
-    <div class="svc"><div class="n">${esc(x.name)}</div>
-      <div class="chip ${x.status === "up" ? "up" : "down"}"><i></i>${esc(x.status)} · ${esc(x.latency_ms)} ms</div></div>`).join("");
-}
-
-async function load() {
-  try {
-    const r = await fetch(LIVE_URL, { cache: "no-store" });
-    if (!r.ok) throw new Error(r.status);
-    render(await r.json(), true);
-  } catch (e) {
-    try {
-      const r = await fetch(FALLBACK, { cache: "no-store" });
-      render(await r.json(), false);
-    } catch (e2) {
-      document.getElementById("freshness").textContent = "telemetry unavailable";
-    }
-  }
-}
-load();
-setInterval(load, 30000);
-</script>
+<main>
+  <h1>Live numbers moved</h1>
+  <p>The live telemetry for both products now lives on our website, next to the activity feed:
+    <a href="https://adaptivesystems.dev/live">adaptivesystems.dev/live</a>.</p>
+  <p>Case studies: <a href="https://github.com/adaptivesystemsdev/ai-command-center">Front Desk</a> ·
+    <a href="https://github.com/adaptivesystemsdev/docket-invoice-intake">Docket</a> ·
+    <a href="https://status.adaptivesystems.dev/status/stack">status page</a></p>
+</main>
 </body>
 </html>
