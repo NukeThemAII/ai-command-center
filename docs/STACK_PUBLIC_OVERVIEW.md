@@ -57,7 +57,7 @@ deterministic checks and goes to human review.
 | redis | Redis 7 (AOF) | session memory, rate limits |
 | crawl4ai | Playwright-based crawler | admin document ingestion |
 | app | Next.js 16 | private mission-control UI |
-| website | Next.js 16 static export | company site with live data; no AI on the public site |
+| website | Next.js 16 static export | company site with live data; our assistant appears there only while the owner switches it on |
 | mail | Postfix + OpenDKIM | send-only mail from the engine (SPF / DKIM / DMARC) |
 | uptime-kuma | monitoring | public status page |
 
@@ -81,5 +81,5 @@ deterministic checks and goes to human review.
 - Versioned release bundle: idempotent installer, upgrades with backup, migrations and automatic rollback;
   pinned dependencies and images.
 - Uptime Kuma monitors every service and the public hosts.
-- Static, per-client, chat, forms, calendar, voice and app test suites plus a live smoke set run after
+- Static, per-client, held-out support answer, chat, forms, calendar, voice and app test suites plus a live smoke set run after
   every change; a boot check verifies every service and public host after a restart.

@@ -58,12 +58,16 @@ The owner works from one private app instead of a dashboard per channel:
 
 - **Inbox:** every conversation (website chat, Telegram, email, voice calls, forms, API leads) as one
   timeline, joined into one person by the contact they typed (never by anything a model guessed); reply
-  by email or straight into the visitor's Telegram chat; "needs you" shows leads still waiting for an
-  answer; keyboard shortcuts, bulk actions, and **erase a person** (GDPR: anonymised everywhere, rows and
+  by email or straight into the visitor's Telegram chat; when a visitor asks for a person, the owner
+  **takes over live** in their website chat and hands back to the assistant afterwards; new alerts appear as
+  toasts (optional desktop notifications), saved replies per business, read / unread across devices;
+  "needs you" shows leads still waiting for an answer; keyboard shortcuts, bulk actions, and **erase a person** (GDPR: anonymised everywhere, rows and
   statistics kept).
-- **Settings:** per business: modules, alerts, limits, contact email, model chain. Every change is
-  validated against the same schemas as the config files; a bad value is refused, never half-applied,
-  and every change is logged.
+- **Settings:** per business: modules, alerts, limits, contact email, model chain, CRM webhook,
+  reminders. Every change is shown as old → new before saving, validated against the same schemas as the
+  config files; a bad value is refused, never half-applied, and every change is logged.
+- **Answer quality:** each business has held-out questions with expected facts, sources and refusals;
+  one button runs them through the real engine (32/32 across the three businesses).
 - **Delivery:** every email, alert and event the system sent, with what the recipient's mail server did
   (delivered, deferred, bounced), read from our own mail server's log.
 - **Mission control:** a "needs attention" strip that appears only when something is wrong, today by
@@ -105,7 +109,7 @@ flowchart LR
 | memory | Redis 7 (AOF) | per-client, per-session memory; rate limits |
 | voice | ElevenLabs Agents | hosted speech; all facts and bookings come from our tools |
 | app | Next.js 16 · TypeScript · Tailwind · shadcn/ui | private mission-control UI (live events, pipeline replay, audit, security showcase, chat + voice demos) |
-| website | Next.js 16 static export | company site with live data from the public stats endpoint and the status page; no AI on the public site |
+| website | Next.js 16 static export | company site with live data from the public stats endpoint and the status page; our own assistant appears there only while the owner switches it on |
 | mail | Postfix + OpenDKIM | send-only, SPF / DKIM / DMARC aligned, relays for the engine alone on a dedicated network |
 | MCP | Model Context Protocol server | lets Claude query and test the stack with scoped tools |
 | ops | nginx · Let's Encrypt · Uptime Kuma · CrowdSec | TLS, per-endpoint routing and rate limits, monitoring |
@@ -162,7 +166,7 @@ flowchart LR
 | Voice tools | **p95 ≈ 25 ms** | as ElevenLabs calls them over the public host |
 | Real voice call test | **17/17** | one real call: docs-only question, two injection attempts, book + cancel in the same call, DB + signed webhook verified |
 | Chat turn | **1–4 ms** when code handles it · **1.3–3.7 s** with the router model | live, 2026-10-29 |
-| Automated checks | **778 static · 102 per-client live · 42 chat · 15 forms · 5 calendar · 21 voice · 90 app** | run after every change; a 15-case live smoke set during development |
+| Automated checks | **789 static · 102 per-client live · 32/32 support evals · 42 chat · 15 forms · 5 calendar · 21 voice · 90 app** | run after every change; a 15-case live smoke set during development |
 
 ## Deployment
 
