@@ -12,7 +12,8 @@
   <b>Live:</b> <a href="https://adaptivesystemsdev.github.io/ai-command-center/">telemetry dashboard</a> ·
   <a href="https://status.adaptivesystems.dev/status/stack">status page</a> ·
   <a href="https://adaptivesystems.dev/">adaptivesystems.dev</a><br>
-  <i>Single VPS, Docker Compose, nginx + Let's Encrypt, Uptime Kuma monitoring.</i>
+  <i>Single VPS, Docker Compose, nginx + Let's Encrypt, Uptime Kuma monitoring.</i><br>
+  <i>Sibling product: <a href="https://github.com/adaptivesystemsdev/docket-invoice-intake">Docket</a>, invoice and document intake on the same principles.</i>
 </p>
 
 <p align="center">
